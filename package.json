@@ -1,0 +1,12 @@
+{
+  "name": "danhbaxe",
+  "version": "1.0.0",
+  "description": "Ứng Dụng Quản Lý Danh Bạ Và Xe",
+  "scripts": {
+    "dev": "npx serve -s .",
+    "start": "npm run dev"
+  },
+  "author": "",
+  "license": "MIT",
+  "dependencies": {}
+}

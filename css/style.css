@@ -1,0 +1,66 @@
+/* Main Stylesheet for Son Hung Fleet App */
+
+:root {
+    --primary-blue: #1e3a8a; /* Blue 900 */
+    --secondary-blue: #1d4ed8; /* Blue 700 */
+    --bg-slate: #f1f5f9; /* Slate 100 */
+    --border-slate: #cbd5e1; /* Slate 300 */
+    --vip-amber: #F59E0B;
+    --vip-bg: #FFFBEB;
+}
+
+body { 
+    font-family: 'Be Vietnam Pro', sans-serif; 
+    background-color: var(--bg-slate);
+    -webkit-tap-highlight-color: transparent; 
+}
+
+/* Custom Scrollbar Shadow */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+/* Navigation & Header */
+.glass-nav {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    border-top: 2px solid var(--border-slate);
+    box-shadow: 0 -4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.header-shadow {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+/* Animations */
+.fade-in { 
+    animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+}
+
+@keyframes fadeIn { 
+    from { opacity: 0; transform: translateY(10px); } 
+    to { opacity: 1; transform: translateY(0); } 
+}
+
+/* Enhanced Cards */
+.vip-card { 
+    border: 2px solid var(--vip-amber) !important; 
+    background-color: var(--vip-bg);
+}
+
+.card-hover {
+    transition: all 0.2s ease-in-out;
+}
+
+.card-hover:active {
+    transform: scale(0.98);
+}
+
+/* Status Badges */
+.badge-ready { @apply bg-green-100 text-green-800 border-green-300; }
+.badge-running { @apply bg-amber-100 text-amber-800 border-amber-300; }
+.badge-maintenance { @apply bg-red-100 text-red-800 border-red-300; }
+
+/* Safe Area for Mobile */
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+}

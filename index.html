@@ -152,6 +152,18 @@
             </div>
         </div>
 
+        <!-- CHẾ ĐỘ XEM GARA -->
+        <div id="view-gara" class="hidden p-4 max-w-3xl mx-auto space-y-6 pb-32 fade-in">
+            <div class="text-center pt-4">
+                <h2 class="text-3xl font-black text-slate-900 tracking-tight">Danh sách Gara</h2>
+                <p class="text-slate-500 font-bold text-sm mt-1">Đối tác sửa chữa & cứu hộ</p>
+            </div>
+
+            <div id="gara-dynamic-container">
+                <!-- Nội dung được tạo từ JS -->
+            </div>
+        </div>
+
     </main>
 
     <!-- THANH ĐIỀU HƯỚNG -->
@@ -188,6 +200,12 @@
                 data-target="hotline">
                 <i class="ph-fill ph-users-three text-2xl"></i>
                 <span class="text-[10px] font-black uppercase tracking-tighter">Hotline</span>
+            </button>
+            <button onclick="navigateTo('gara')"
+                class="mobile-nav-btn flex flex-col items-center gap-1.5 w-full h-full justify-center transition-all"
+                data-target="gara">
+                <i class="ph-fill ph-wrench text-2xl"></i>
+                <span class="text-[10px] font-black uppercase tracking-tighter">Gara</span>
             </button>
         </div>
     </nav>

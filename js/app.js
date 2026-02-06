@@ -5,7 +5,7 @@ import { fetchData, saveApiUrl, getStoredApiUrl } from './api.js';
  * Dữ liệu mặc định cho trạng thái ứng dụng.
  * (Default data for application state.)
  */
-const DEFAULT_DATA = { vehicles: [], hotline: [] };
+const DEFAULT_DATA = { vehicles: [], hotline: [], gara: [] };
 
 /**
  * Trạng thái trung tâm của ứng dụng (Central application state)
@@ -22,7 +22,7 @@ export function navigateTo(pageId, teamFilter = null) {
         el.classList.add('hidden');
         el.classList.remove('flex');
     });
-    
+
     // Đặt lại các nút điều hướng
     document.querySelectorAll('.mobile-nav-btn').forEach(btn => {
         btn.classList.remove('text-blue-700', 'active-nav');
@@ -56,6 +56,8 @@ export function navigateTo(pageId, teamFilter = null) {
         renderFleet();
     } else if (pageId === 'hotline') {
         renderHotline();
+    } else if (pageId === 'gara') {
+        renderGara();
     }
 }
 
@@ -68,7 +70,7 @@ function cleanPhone(phone) {
 }
 
 /**
- * Chuẩn hóa số điện thoại về định dạng +84 (Normalize to +84 format)
+ * Chuẩn hóa số điện thoại về định dạng +84
  */
 function normalizeTo84(phone) {
     let p = cleanPhone(phone);
@@ -115,7 +117,7 @@ function renderHotline() {
         return;
     }
 
-    // Nhóm theo Nhom (Group by Nhom)
+    // Nhóm theo Nhom (Cột phân loại trong Sheet)
     const groups = {};
     appData.hotline.forEach(person => {
         const groupName = (person.Nhom || 'KHÁC').toString().toUpperCase().trim();
@@ -123,7 +125,7 @@ function renderHotline() {
         groups[groupName].push(person);
     });
 
-    // Màu sắc và Icon cho từng nhóm (Dynamic color mapping)
+    // Màu sắc và Icon cho từng nhóm (Tự động gán theo tên nhóm)
     const groupStyles = {
         'BAN LÃNH ĐẠO': { text: 'text-amber-600', bg: 'bg-amber-500' },
         'QUẢN LÝ & KỸ THUẬT': { text: 'text-blue-600', bg: 'bg-blue-500' },
@@ -183,7 +185,7 @@ function renderFleet() {
     const term = document.getElementById('searchInput').value.toLowerCase();
     const grid = document.getElementById('fleetGrid');
     if (!grid) return;
-    
+
     grid.innerHTML = '';
 
     const filtered = (appData.vehicles || []).filter(v => {
@@ -205,10 +207,10 @@ function renderFleet() {
     filtered.forEach(v => {
         const zalo = formatZalo(v.SDT);
         const status = normalizeStatus(v.TrangThai);
-        
-        let statusClass = status === 'sẵn sàng' ? 'badge-ready' 
-                        : status === 'không sẵn sàng' ? 'badge-running' 
-                        : 'badge-maintenance';
+
+        let statusClass = status === 'sẵn sàng' ? 'badge-ready'
+            : status === 'không sẵn sàng' ? 'badge-running'
+                : 'badge-maintenance';
 
         const html = `
             <div class="bg-white rounded-xl shadow-md border-2 border-slate-300 p-4 flex flex-col gap-3 card-hover group fade-in">
@@ -246,18 +248,21 @@ function renderFleet() {
 
 function updateStats() {
     const v = appData.vehicles || [];
+    /**
+     * Các thành phần giao diện (UI elements)
+     */
     const elements = {
         total: document.getElementById('stat-total'),
         active: document.getElementById('stat-active'),
         running: document.getElementById('stat-running'),
         team1: document.getElementById('count-team1'),
         team2: document.getElementById('count-team2'),
-        labelActive: document.getElementById('label-stat-active'), // Note: need to add this ID to HTML if not present, but for now focus on logic
+        labelActive: document.getElementById('label-stat-active'), // Lưu ý: cần thêm ID này vào HTML nếu chưa có, nhưng hiện tại tập trung vào logic
         labelRunning: document.getElementById('label-stat-running')
     };
 
     if (elements.total) elements.total.innerText = v.length;
-    
+
     // Tự động tìm các trạng thái phổ biến nhất (Find most common statuses)
     const statusCounts = {};
     v.forEach(i => {
@@ -266,7 +271,7 @@ function updateStats() {
     });
 
     const sortedStatuses = Object.entries(statusCounts).sort((a, b) => b[1] - a[1]);
-    
+
     // Cập nhật trạng thái số 1 (thường là "Sẵn sàng")
     if (sortedStatuses[0]) {
         if (elements.active) elements.active.innerText = sortedStatuses[0][1];
@@ -281,7 +286,7 @@ function updateStats() {
         if (elements.running) elements.running.innerText = sortedStatuses[1][1];
         if (elements.labelRunning) elements.labelRunning.innerText = sortedStatuses[1][0];
 
-        // Liệt kê biển số xe (List license plates)
+        // Liệt kê biển số xe
         if (plateContainer) {
             const notReadyVehicles = v.filter(i => normalizeStatus(i.TrangThai) === sortedStatuses[1][0]);
             notReadyVehicles.forEach(veh => {
@@ -303,22 +308,77 @@ function updateStats() {
 /**
  * Làm mới dữ liệu từ API và cập nhật giao diện
  */
+function renderGara() {
+    const mainContainer = document.getElementById('gara-dynamic-container');
+    if (!mainContainer) return;
+    mainContainer.innerHTML = '';
+
+    if (!appData.gara || appData.gara.length === 0) {
+        mainContainer.innerHTML = `<div class="text-center py-20 text-slate-400 font-bold">
+            <i class="ph-bold ph-wrench text-4xl mb-2 opacity-20"></i>
+            <p>Không có dữ liệu gara</p>
+        </div>`;
+        return;
+    }
+
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
+
+    appData.gara.forEach(item => {
+        const phone = normalizeTo84(item.SoDienThoai);
+        const mapLink = item.DiaChi || '#';
+
+        const html = `
+            <div class="bg-white rounded-xl p-4 border-2 border-slate-300 shadow-sm flex flex-col gap-3 card-hover fade-in">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-black text-lg text-slate-800 leading-tight">${item.GaRa || 'Gara ???'}</h3>
+                        <p class="text-xs text-slate-500 font-bold mt-1">${item.NghiepVu || 'Dịch vụ kĩ thuật'}</p>
+                    </div>
+                    <div class="w-10 h-10 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center border-2 border-orange-200">
+                         <i class="ph-fill ph-wrench text-xl"></i>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2 mt-1">
+                     <i class="ph-bold ph-phone text-slate-400"></i>
+                     <span class="text-sm font-mono font-bold text-slate-700">${formatPhone(item.SoDienThoai)}</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-auto pt-2">
+                    <a href="tel:${getTelLink(item.SoDienThoai)}" class="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-green-600 text-white font-black text-xs uppercase tracking-wider shadow-sm active:scale-95 transition-all">
+                        <i class="ph-bold ph-phone"></i> Gọi
+                    </a>
+                    <a href="${mapLink}" target="_blank" class="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 font-black text-xs uppercase tracking-wider shadow-sm active:scale-95 transition-all">
+                        <i class="ph-bold ph-map-pin"></i> Chỉ đường
+                    </a>
+                </div>
+            </div>
+        `;
+        grid.insertAdjacentHTML('beforeend', html);
+    });
+
+    mainContainer.appendChild(grid);
+}
+
 async function refreshData() {
     appData = await fetchData();
     updateStats();
-    
+
     // Làm mới chế độ xem hiện tại nếu cần
     const visibleFleet = !document.getElementById('view-fleet').classList.contains('hidden');
     const visibleHotline = !document.getElementById('view-hotline').classList.contains('hidden');
-    
+    const visibleGara = !document.getElementById('view-gara').classList.contains('hidden');
+
     if (visibleFleet) renderFleet();
     if (visibleHotline) renderHotline();
+    if (visibleGara) renderGara();
 }
 
 window.addEventListener('DOMContentLoaded', () => {
     // Thiết lập điều hướng
     window.navigateTo = navigateTo;
-    
+
     // Tìm kiếm với debounce
     let searchTimer;
     const searchInput = document.getElementById('searchInput');
@@ -332,14 +392,14 @@ window.addEventListener('DOMContentLoaded', () => {
     // Logic cho cửa sổ cấu hình (Modal logic)
     const apiModal = document.getElementById('apiModal');
     const apiUrlInput = document.getElementById('apiUrlInput');
-    
+
     window.openConfig = () => {
         apiUrlInput.value = getStoredApiUrl();
         apiModal.classList.remove('hidden');
     }
-    
+
     window.closeConfig = () => apiModal.classList.add('hidden');
-    
+
     window.saveConfig = () => {
         if (saveApiUrl(apiUrlInput.value)) {
             closeConfig();
@@ -347,9 +407,9 @@ window.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    
+
     document.querySelector('header').addEventListener('dblclick', window.openConfig);
-    
+
     // Nút làm mới
     const refreshBtn = document.querySelector('button[onclick="fetchData()"]');
     if (refreshBtn) {

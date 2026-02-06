@@ -16,10 +16,10 @@ export async function fetchData() {
 
         const res = await fetch(apiUrl);
         if (!res.ok) throw new Error(`Lỗi HTTP! mã trạng thái: ${res.status}`);
-        
+
         const json = await res.json();
-        
-        // Cải thiện việc tìm kiếm dữ liệu (Flexible key finding)
+
+        // Cải thiện việc tìm kiếm dữ liệu (Tìm kiếm linh hoạt theo từ khóa)
         let vehicles = null;
         let hotline = null;
 
@@ -57,13 +57,22 @@ export async function fetchData() {
             }
         }
 
+        // Logic tìm gara (nếu API trả về có key gara)
+        let gara = null;
+        if (json.gara && Array.isArray(json.gara)) {
+            gara = json.gara;
+        } else if (json.Gara && Array.isArray(json.Gara)) {
+            gara = json.Gara;
+        }
+
         return {
             vehicles: vehicles || DEFAULT_DATA.vehicles,
-            hotline: hotline || DEFAULT_DATA.hotline
+            hotline: hotline || DEFAULT_DATA.hotline,
+            gara: gara || DEFAULT_DATA.gara
         };
     } catch (err) {
-        console.error("Lỗi tìm nạp dữ liệu (Data fetch error):", err);
-        // Dự phòng (fallback) sang bộ nhớ cục bộ hoặc dữ liệu mặc định
+        console.error("Lỗi tìm nạp dữ liệu:", err);
+        // Dự phòng (fallback) sang dữ liệu mặc định
         return { ...DEFAULT_DATA };
     } finally {
         if (icon) icon.classList.remove('animate-spin');

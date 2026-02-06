@@ -4,7 +4,12 @@ import { DEFAULT_DATA, STORAGE_KEYS } from './data.js';
  * Xử lý tất cả việc tìm nạp dữ liệu và đồng bộ hóa trạng thái.
  */
 export async function fetchData() {
-    const apiUrl = localStorage.getItem(STORAGE_KEYS.API_URL);
+    // URL mới cập nhật (2025)
+    const DEFAULT_API_URL = 'https://script.google.com/macros/s/AKfycbxIg3lZ8JSXEJDXVmSMPN8OMf2u6zrYxS_Ur6E-aTpbwJRFlZiJLb1RuhcJdCqKEw/exec';
+
+    // Ưu tiên lấy trong LocalStorage (nếu người dùng tự cấu hình), nếu không thì dùng Default
+    const apiUrl = localStorage.getItem(STORAGE_KEYS.API_URL) || DEFAULT_API_URL;
+
     const icon = document.getElementById('refresh-icon');
     if (icon) icon.classList.add('animate-spin');
 

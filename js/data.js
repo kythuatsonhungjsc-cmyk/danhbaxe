@@ -24,5 +24,5 @@ export const DEFAULT_DATA = {
 };
 
 export const STORAGE_KEYS = {
-    API_URL: 'fleetApp_apiUrl'
+    API_URL: 'fleetApp_apiUrl_v2'
 };

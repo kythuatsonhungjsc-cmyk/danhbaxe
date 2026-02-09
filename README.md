@@ -31,4 +31,4 @@
 - **Google Apps Script** (Backend/Database)
 
 ## 📄 Giấy phép
-Bản quyền thuộc về Sơn Hùng Logistics.
+Bản quyền thuộc về Sơn Hùng Logistics..
